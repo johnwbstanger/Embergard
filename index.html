@@ -117,6 +117,58 @@ canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelate
 }
 /* Styles the music toggle button. */
 #musicToggle:hover{color:#fff2c9;background:linear-gradient(#4d2a70,#2f1747);}
+
+/* Mobile HUD: score is a proper tappable bar; sound sits directly beneath it. */
+#rightHud{position:relative;text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:5px;pointer-events:none;}
+#scoreText{min-width:118px;height:28px;padding:7px 9px 6px;color:var(--gold);background:#170d20;border:2px solid var(--bone);text-align:center;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent;box-shadow:inset 0 0 7px rgba(0,0,0,.7);}
+#scoreText.weaponOn{border-color:#7fe8df;color:#dffffb;box-shadow:0 0 10px rgba(127,232,223,.55),inset 0 0 7px rgba(0,0,0,.7);}
+#musicToggle{top:calc(78px + env(safe-area-inset-top));right:calc(12px + env(safe-area-inset-right));width:34px;height:30px;border-radius:5px;z-index:12;}
+
+/* Edge-control layout: broad surfaces are much easier to hit than small virtual sticks. */
+#movePad{left:calc(env(safe-area-inset-left) + 2px);bottom:calc(env(safe-area-inset-bottom) + 3px);width:clamp(132px,31vw,230px);height:clamp(66px,25vh,112px);border-radius:0 22px 22px 0;background:linear-gradient(90deg,rgba(8,6,12,.60),rgba(31,21,43,.32));border:1px solid rgba(233,220,195,.28);border-left:0;box-shadow:inset -8px 0 18px rgba(0,0,0,.30);opacity:.78;}
+#movePad::after{display:none;}
+#moveStick{width:34px;height:34px;opacity:.55;}
+#movePad .moveLeft,#movePad .moveRight{position:absolute;top:50%;transform:translateY(-50%);font-size:clamp(18px,5vh,29px);color:rgba(242,215,127,.82);text-shadow:1px 2px #000;pointer-events:none;}
+#movePad .moveLeft{left:12%;}#movePad .moveRight{right:12%;}
+#movePad .moveLabel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:700 clamp(7px,1.7vh,10px)/1.25 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:rgba(233,220,195,.76);text-align:center;letter-spacing:.5px;pointer-events:none;white-space:nowrap;}
+#movePad .moveLabel small{font-size:.68em;font-weight:600;color:rgba(233,220,195,.54);}
+#tAttack{right:calc(env(safe-area-inset-right) + 2px);bottom:calc(env(safe-area-inset-bottom) + 3px);width:clamp(66px,14vw,96px);height:clamp(82px,31vh,132px);border-radius:22px 0 0 22px;border-right:0;background:linear-gradient(270deg,rgba(8,6,12,.66),rgba(75,42,28,.44));display:flex;flex-direction:column;gap:5px;opacity:.82;}
+#tAttack span{font-size:clamp(20px,6vh,34px);line-height:1;}#tAttack small{font:700 clamp(7px,1.8vh,10px)/1 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;letter-spacing:.7px;color:rgba(255,242,201,.78);}
+#tAttack.held{transform:scale(.98);background:linear-gradient(270deg,rgba(32,19,8,.85),rgba(130,78,29,.70));}
+@media (pointer:coarse) and (max-height:430px){#scoreText{min-width:104px;height:24px;padding:5px 7px;font-size:7px}#musicToggle{top:calc(66px + env(safe-area-inset-top));width:31px;height:27px}#movePad{height:74px}#tAttack{height:88px}}
+
+
+/* Final mobile HUD/control layout: fixed zones prevent all overlap. */
+@media (pointer:coarse){
+  #hud{padding:calc(7px + env(safe-area-inset-top)) calc(8px + env(safe-area-inset-right)) 6px calc(9px + env(safe-area-inset-left));}
+  #rightHud{position:absolute;right:calc(8px + env(safe-area-inset-right));top:calc(7px + env(safe-area-inset-top));display:block;min-width:92px;pointer-events:none;}
+  #stageText{display:none;}
+  #scoreText{position:fixed;right:calc(8px + env(safe-area-inset-right));bottom:calc(8px + env(safe-area-inset-bottom));top:auto;min-width:112px;height:34px;padding:8px 11px 6px;font-size:clamp(7px,1.8vh,9px);z-index:13;border-radius:6px;background:rgba(16,10,23,.95);border:2px solid var(--bone);box-shadow:0 3px 12px rgba(0,0,0,.52),inset 0 0 8px rgba(0,0,0,.72);}
+  #musicToggle{position:fixed;right:calc(8px + env(safe-area-inset-right));top:calc(8px + env(safe-area-inset-top));bottom:auto;width:35px;height:35px;z-index:14;border-radius:7px;background:rgba(28,16,42,.92);}
+  #bossWrap{top:calc(7px + env(safe-area-inset-top));width:min(48%,430px);}
+  #touchControls{position:absolute;inset:0;z-index:11;pointer-events:none;}
+  /* The whole left side is the movement surface. It is nearly invisible, with only a centered guide. */
+  #movePad{position:absolute;left:0;top:20%;bottom:auto;transform:none;width:38%;height:60%;border-radius:0 24px 24px 0;pointer-events:auto;touch-action:none;background:linear-gradient(90deg,rgba(15,10,22,.10),rgba(15,10,22,.035));border:1px solid rgba(233,220,195,.08);border-left:0;box-shadow:none;opacity:.72;backdrop-filter:none;}
+  #movePad::after{display:none;}
+  #moveStick,.moveLeft,.moveRight,.moveLabel{display:none!important;}
+  #movePad .moveArrow,#movePad .moveWord,#movePad .moveCenterDot{position:absolute;left:34%;transform:translateX(-50%);pointer-events:none;text-shadow:1px 1px 2px #000;}
+  #movePad .moveArrow{font:600 clamp(22px,6vh,34px)/1 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:rgba(233,220,195,.24);}
+  #movePad .moveWord{font:700 clamp(7px,1.7vh,10px)/1 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;letter-spacing:1.3px;color:rgba(233,220,195,.28);}
+  #movePad .moveUp{top:12%}.moveRightWord{top:32%}.moveLeftWord{bottom:32%}.moveDown{bottom:12%}
+  #movePad .moveCenterDot{top:50%;width:10px;height:10px;border-radius:50%;background:rgba(224,172,43,.24);box-shadow:0 0 12px rgba(224,172,43,.16);}
+  #movePad.active{border-color:rgba(224,172,43,.18);background:linear-gradient(90deg,rgba(50,31,68,.13),rgba(35,23,49,.04));opacity:.94;}
+  /* Strike sits at hand height on the far-right edge. */
+  #tAttack{position:absolute;right:calc(5px + env(safe-area-inset-right));top:50%;bottom:auto;transform:translateY(-50%);width:clamp(60px,11vw,82px);height:clamp(60px,19vh,82px);border-radius:50%;border:1px solid rgba(224,172,43,.58);pointer-events:auto;touch-action:none;background:radial-gradient(circle at 36% 30%,rgba(224,172,43,.23),rgba(31,18,46,.62));box-shadow:0 4px 13px rgba(0,0,0,.38),inset 0 0 8px rgba(0,0,0,.34);opacity:.78;}
+  #tAttack span{font-size:clamp(18px,5vh,26px)}#tAttack small{font-size:clamp(6px,1.5vh,8px);}
+  #tAttack.held{transform:translateY(-50%) scale(.94);opacity:1;}
+}
+@media (pointer:coarse) and (max-height:390px){
+  #movePad{top:18%;height:64%;width:40%}.moveRightWord{top:31%}.moveLeftWord{bottom:31%}
+  #tAttack{top:50%;bottom:auto;width:56px;height:56px}
+  #scoreText{min-width:104px;height:29px;padding:6px 8px 4px;border-width:2px}
+  #musicToggle{width:31px;height:31px}
+}
+
 </style>
 <!-- Ends the metadata section. -->
 </head>
@@ -131,15 +183,19 @@ canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelate
 <!-- Adds the retro scanline overlay above the canvas. -->
 <div id="scanlines"></div><div id="vignette"></div>
 <!-- Builds the heads-up display for health, stage, and score. -->
-<div id="hud"><div><div>HEALTH</div><div id="healthBar"><div id="healthFill"></div><div id="shieldSecret" aria-label="Hidden shield toggle"></div></div></div><div style="text-align:right"><div id="stageText">STAGE 1</div><div id="scoreText" aria-label="Score; hidden weapon toggle" style="color:var(--gold);margin-top:7px;pointer-events:auto;touch-action:none;-webkit-tap-highlight-color:transparent;padding:8px 4px;margin-right:-4px">SCORE 0</div></div></div>
+<div id="hud"><div><div>HEALTH</div><div id="healthBar"><div id="healthFill"></div><div id="shieldSecret" aria-label="Hidden shield toggle"></div></div></div><div id="rightHud"><div id="stageText">STAGE 1</div><div id="scoreText" aria-label="Score bar; touch to toggle sword power">SCORE 0</div></div></div>
 <!-- Creates the boss nameplate and boss health bar. -->
 <div id="bossWrap"><div id="bossName">THE HOLLOW KNIGHT</div><div id="bossBar"><div id="bossFill"></div></div></div>
 <!-- Creates the music on/off button. -->
 <button id="musicToggle" aria-label="Toggle music" title="Toggle music">🔈</button>
 <!-- Creates the on-screen touch controls for phones/tablets; hidden automatically on mouse devices via CSS. -->
 <div id="touchControls">
-  <div id="movePad" aria-label="Movement joystick; swipe upward to jump"><div id="moveStick"></div></div>
-  <div id="tAttack" aria-label="Swing sword">⚔</div>
+  <div id="movePad" aria-label="Vertical movement slider: swipe up to move right, swipe down to move left, tap twice upward to jump">
+    <span class="moveArrow moveUp">↑</span><span class="moveWord moveRightWord">RIGHT</span>
+    <span class="moveCenterDot"></span>
+    <span class="moveWord moveLeftWord">LEFT</span><span class="moveArrow moveDown">↓</span>
+  </div>
+  <div id="tAttack" aria-label="Swing sword"><span>⚔</span><small>STRIKE</small></div>
 </div>
 <div id="weaponSecret" aria-label="Hidden weapon toggle"></div>
 <!-- Creates the title/game-over overlay and its text/button elements. -->
@@ -366,41 +422,35 @@ function bindTapButton(el,fn){
   el.addEventListener('pointercancel',release);
   el.addEventListener('lostpointercapture',release);
 }
-// Compact analog-style movement pad. Horizontal drag controls movement;
-// an upward swipe creates a long-enough virtual key pulse for the game loop.
-const movePad=document.getElementById('movePad'),moveStick=document.getElementById('moveStick');
-let padPointer=null,padStartX=0,padStartY=0,padJumped=false,jumpReleaseTimer=0;
-function pulseMobileJump(){
-  keys.ArrowUp=true;
-  clearTimeout(jumpReleaseTimer);
-  jumpReleaseTimer=setTimeout(()=>{keys.ArrowUp=false;},110);
+// Center vertical thumb slider. Swipe/hold upward to move right; swipe/hold downward
+// to move left. A quick second upward flick performs a jump, which avoids extra buttons.
+const movePad=document.getElementById('movePad');
+let padPointer=null,padStartY=0,padLastY=0,padLastUpFlick=0,jumpReleaseTimer=0;
+function pulseMobileJump(){keys.ArrowUp=true;clearTimeout(jumpReleaseTimer);jumpReleaseTimer=setTimeout(()=>{keys.ArrowUp=false;},125);}
+function updateVerticalMove(e){
+  const r=movePad.getBoundingClientRect();
+  const center=r.top+r.height/2;
+  const dy=e.clientY-center;
+  const dead=Math.max(12,r.height*.11);
+  keys.ArrowRight=dy<-dead;
+  keys.ArrowLeft=dy>dead;
+  padLastY=e.clientY;
+  movePad.classList.toggle('active',Math.abs(dy)>dead);
+  if(e.clientY-padStartY<-Math.max(24,r.height*.20)){
+    const now=performance.now();
+    if(now-padLastUpFlick<360){pulseMobileJump();padLastUpFlick=0;}
+    else padLastUpFlick=now;
+    padStartY=e.clientY;
+  }
 }
 function releasePad(e){
   if(padPointer!==null&&e&&e.pointerId!==undefined&&e.pointerId!==padPointer)return;
-  padPointer=null;keys.ArrowLeft=false;keys.ArrowRight=false;
-  moveStick.style.transform='translate(-50%,-50%)';
+  padPointer=null;keys.ArrowLeft=false;keys.ArrowRight=false;movePad.classList.remove('active');
 }
-movePad.addEventListener('pointerdown',e=>{
-  e.preventDefault();e.stopPropagation();
-  padPointer=e.pointerId;padStartX=e.clientX;padStartY=e.clientY;padJumped=false;
-  try{movePad.setPointerCapture(e.pointerId);}catch(err){}
-});
-movePad.addEventListener('pointermove',e=>{
-  if(e.pointerId!==padPointer)return;e.preventDefault();
-  const dx=e.clientX-padStartX,dy=e.clientY-padStartY,limit=movePad.clientWidth*.28;
-  const tx=Math.max(-limit,Math.min(limit,dx)),ty=Math.max(-limit,Math.min(limit,dy));
-  moveStick.style.transform=`translate(calc(-50% + ${tx}px),calc(-50% + ${ty}px))`;
-  const dead=Math.max(8,movePad.clientWidth*.10);
-  keys.ArrowLeft=dx<-dead;keys.ArrowRight=dx>dead;
-  if(dy<-Math.max(20,movePad.clientHeight*.24)&&!padJumped){padJumped=true;pulseMobileJump();}
-});
-movePad.addEventListener('pointerup',releasePad);
-movePad.addEventListener('pointercancel',releasePad);
-movePad.addEventListener('lostpointercapture',releasePad);
-window.addEventListener('blur',()=>releasePad(null));
-document.addEventListener('visibilitychange',()=>{if(document.hidden)releasePad(null);});
-// Sword control: one swing per press during play, but press-and-hold during
-// the sword-pull scene. This removes the need to rapidly double-tap on iPhone.
+movePad.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();padPointer=e.pointerId;padStartY=padLastY=e.clientY;try{movePad.setPointerCapture(e.pointerId);}catch(err){}updateVerticalMove(e);});
+movePad.addEventListener('pointermove',e=>{if(e.pointerId!==padPointer)return;e.preventDefault();updateVerticalMove(e);});
+movePad.addEventListener('pointerup',releasePad);movePad.addEventListener('pointercancel',releasePad);movePad.addEventListener('lostpointercapture',releasePad);
+window.addEventListener('blur',()=>releasePad(null));document.addEventListener('visibilitychange',()=>{if(document.hidden)releasePad(null);});
 const swordButton=document.getElementById('tAttack');
 let swordPointer=null,swordPullTimer=0;
 swordButton.addEventListener('pointerdown',e=>{
@@ -529,9 +579,9 @@ function update(){if(hitStop>0){hitStop--;updateParticles();return;}if(state===S
 // Runs part of the game logic, drawing, input handling, animation, or audio.
  }else{
 // Checks a game condition and runs the matching behavior.
-   if(player.x-cameraX>W*.62)cameraX=player.x-W*.62;
+   if(player.x-cameraX>W*.50)cameraX=player.x-W*.50;
 // Checks a game condition and runs the matching behavior.
-   if(player.x<cameraX+W*.04)player.x=cameraX+W*.04;
+   if(player.x<cameraX+W*.06)player.x=cameraX+W*.06;
 // Runs part of the game logic, drawing, input handling, animation, or audio.
  }
 // Handles developer/cheat-mode state or visuals.
@@ -676,7 +726,7 @@ function updateParticles(){for(const p of particles){p.x+=p.vx;p.y+=p.vy;p.vy+=.
 function syncHudVisibility(){
   const playable=state===STATE.PLAY||state===STATE.BOSS;
   const pulling=state===STATE.PULLING;
-  const cutscene=state===STATE.EPILOGUE||state===STATE.BOSSDEATH;
+  const cutscene=state===STATE.EPILOGUE||state===STATE.BOSSDEATH||state===STATE.WIN;
   hud.style.display=playable?'flex':'none';
   scoreText.style.display=playable?'block':'none';
   document.getElementById('touchControls').style.display=(playable||pulling)?'block':'none';
@@ -685,7 +735,7 @@ function syncHudVisibility(){
   musicToggle.style.display=cutscene?'none':'flex';
   if(!playable)bossWrap.style.display='none';
 }
-function updateHud(){syncHudVisibility();healthFill.style.width=Math.max(0,player.hp/player.maxHp*100)+'%';scoreText.textContent='SCORE '+score;}
+function updateHud(){syncHudVisibility();healthFill.style.width=Math.max(0,player.hp/player.maxHp*100)+'%';scoreText.textContent='SCORE '+score;scoreText.classList.toggle('weaponOn',holySword);}
 // Shows the death overlay and restart behavior.
 function gameOver(){clearBanners();state=STATE.DEAD;const restartMsgs={1:'THE ROAD CALLS YOU BACK',2:'THE FLAMES REMEMBER YOUR FALL',3:'RISE ONCE MORE FROM THE ASH'};const lvl=level;showOverlay('YOU HAVE FALLEN','SCORE '+score,'The road devours another would-be king.','RISE AGAIN','← → / A D MOVE, ↑ / W JUMP, SPACE / S ATTACK',()=>{startLevel(lvl,restartMsgs[lvl]||'RISE AGAIN, HERO');});}
 // Shows the final victory/play-again overlay.
@@ -742,18 +792,19 @@ function render(){t++;syncHudVisibility();ctx.clearRect(0,0,W,H); const totalSha
   const boxW=Math.min(W*.84,Math.max(...lines.map(l=>ctx.measureText(l).width))+42);
 // Runs part of the game logic, drawing, input handling, animation, or audio.
   const boxH=24+lines.length*(fs+11);
+  const bannerY=Math.round(H*.32);
 // Uses the canvas drawing context to render shapes, text, color, or effects.
-  ctx.fillStyle='rgba(6,4,10,.84)';
+  ctx.fillStyle='rgba(6,4,10,.88)';
 // Uses the canvas drawing context to render shapes, text, color, or effects.
-  ctx.fillRect(W/2-boxW/2,20,boxW,boxH);
+  ctx.fillRect(W/2-boxW/2,bannerY,boxW,boxH);
 // Uses the canvas drawing context to render shapes, text, color, or effects.
   ctx.strokeStyle='rgba(224,172,43,.45)';
 // Uses the canvas drawing context to render shapes, text, color, or effects.
-  ctx.strokeRect(W/2-boxW/2,20,boxW,boxH);
+  ctx.strokeRect(W/2-boxW/2,bannerY,boxW,boxH);
 // Uses the canvas drawing context to render shapes, text, color, or effects.
   ctx.fillStyle='#e0ac2b';
 // Uses the canvas drawing context to render shapes, text, color, or effects.
-  lines.forEach((line,i)=>ctx.fillText(line,W/2,46+i*(fs+11)));
+  lines.forEach((line,i)=>ctx.fillText(line,W/2,bannerY+26+i*(fs+11)));
 // Uses the canvas drawing context to render shapes, text, color, or effects.
   ctx.restore();
 // Runs part of the game logic, drawing, input handling, animation, or audio.
@@ -1005,7 +1056,7 @@ function tri(x1,y1,x2,y2,x3,y3,c){ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(x1,
 // Returns normalized cutscene progress between two frame numbers.
 function ph(a,b){return Math.max(0,Math.min(1,(epilogueT-a)/(b-a)));}
 // Draws centered cinematic text with fade control.
-function drawCenteredText(text,y,size,color,alpha){ctx.save();ctx.globalAlpha=Math.max(0,Math.min(1,alpha));ctx.font=`700 ${Math.round(size*(W/960))}px Cinzel, serif`;ctx.textAlign='center';ctx.fillStyle=color;ctx.shadowColor='#000';ctx.shadowBlur=8;ctx.fillText(text,W/2,y);ctx.restore();}
+function drawCenteredText(text,y,size,color,alpha){if(state===STATE.EPILOGUE)y+=y>H*.68?H*.018:H*.045;ctx.save();ctx.globalAlpha=Math.max(0,Math.min(1,alpha));ctx.font=`700 ${Math.round(size*(W/960))}px Cinzel, serif`;ctx.textAlign='center';ctx.fillStyle=color;ctx.shadowColor='#000';ctx.shadowBlur=8;ctx.fillText(text,W/2,y);ctx.restore();}
 // Draws the hero sprite used in cutscenes.
 function drawHeroSprite(x,y,flip,legPhase,crowned=false,showSword=true,scale=1){
 // Uses the canvas drawing context to render shapes, text, color, or effects.
@@ -1484,10 +1535,10 @@ function drawTransitionScene(){
    let sonY=lerp(gy,gy+22,sonWalk);
    let sonScale=lerp(.78,2.0,sonWalk);
    drawSonHeroSprite(sonX,sonY,1,walkingPhase(sonMoving,p),sonScale);
-   drawCenteredText('WHO WILL CARRY THE FLAME?',H*.28,24,'#fff2c9',ph(1050,1120)*(1-ph(1180,1230)));
-   if(p>1230){ctx.fillStyle=`rgba(0,0,0,${ph(1230,1350)})`;ctx.fillRect(0,0,W,H);}
-   if(p>1350&&p<1560){ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);const zt=ph(1350,1460);drawHelmetZoom(zt);drawCenteredText('THE HOLLOW KNIGHT WILL RETURN...',H*.74,22,'#d54b55',ph(1450,1530)*(1-ph(1540,1560)));}
-   if(p>=1560){drawHollowHomeScene(p-240);}
+   drawCenteredText('WHO WILL CARRY THE FLAME?',H*.28,24,'#fff2c9',ph(1160,1235)*(1-ph(1320,1380)));
+   if(p>1380){ctx.fillStyle=`rgba(0,0,0,${ph(1380,1500)})`;ctx.fillRect(0,0,W,H);}
+   if(p>1500&&p<1710){ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);const zt=ph(1500,1610);drawHelmetZoom(zt);drawCenteredText('THE HOLLOW KNIGHT WILL RETURN...',H*.74,22,'#d54b55',ph(1600,1680)*(1-ph(1690,1710)));}
+   if(p>=1710){drawHollowHomeScene(p-390);}
  }
 }
 // Uses the canvas drawing context to render shapes, text, color, or effects.
