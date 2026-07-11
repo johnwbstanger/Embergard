@@ -88,10 +88,11 @@ canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelate
 #tAttack.held{background:linear-gradient(#4d2a70,#2f1747);color:#fff2c9;opacity:1;}
 #shieldSecret{position:absolute;inset:-12px;pointer-events:auto;touch-action:manipulation;}
 #weaponSecret{position:absolute;top:0;right:0;width:18%;height:22%;z-index:9;pointer-events:auto;touch-action:manipulation;}
-#rotatePrompt{display:none;position:fixed;inset:0;z-index:9999;background:#06040a;color:var(--gold);align-items:center;justify-content:center;text-align:center;padding:30px;font-family:'Press Start 2P',monospace;font-size:clamp(12px,4vw,20px);line-height:1.8;}
+#rotatePrompt{display:none;position:fixed;inset:0;z-index:9999;background:rgba(6,4,10,.94);color:var(--gold);align-items:center;justify-content:center;text-align:center;padding:30px;font-family:'Press Start 2P',monospace;font-size:clamp(12px,4vw,20px);line-height:1.8;pointer-events:auto;}
+#rotatePrompt.show{display:flex;}
 #rotatePrompt .phone{font-size:48px;display:block;margin-bottom:18px;animation:turnPhone 1.7s ease-in-out infinite;}
 @keyframes turnPhone{0%,20%{transform:rotate(0deg)}70%,100%{transform:rotate(90deg)}}
-@media (pointer:coarse) and (orientation:portrait){#rotatePrompt{display:flex;}#arena{visibility:hidden;}}
+
 #musicToggle{position:absolute;bottom:14px;right:14px;z-index:9;width:36px;height:36px;background:linear-gradient(#3d1f5c,#241238);border:2px solid var(--gold);color:var(--gold);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 10px rgba(224,172,43,.3),inset 0 0 8px rgba(0,0,0,.6);border-radius:3px;font-family:'Press Start 2P',monospace;touch-action:manipulation;}
 @media (pointer:coarse){
   #musicToggle{bottom:auto;top:calc(10px + env(safe-area-inset-top));right:calc(10px + env(safe-area-inset-right));}
@@ -104,7 +105,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelate
 </head>
 <!-- Begins the visible page body. -->
 <body>
-<div id="rotatePrompt"><div><span class="phone">📱</span>ROTATE YOUR DEVICE SIDEWAYS<br><small>Landscape mode shows the full battlefield.</small></div></div>
+<div id="rotatePrompt"><div><span class="phone">📱</span>ROTATE SIDEWAYS<br><small>Tap anywhere to continue now.</small></div></div>
 <!-- Creates the centered outer container for the game frame. -->
 <div id="arena"><div id="frame">
 <!-- Creates the canvas where all game graphics are drawn. -->
@@ -148,6 +149,28 @@ window.addEventListener('resize',resize);
 // Re-measures on rotation and on iOS's visual viewport changes (address bar show/hide), which don't always fire 'resize'.
 window.addEventListener('orientationchange',()=>setTimeout(resize,60));
 if(window.visualViewport)window.visualViewport.addEventListener('resize',resize);
+// Shows a brief landscape suggestion without ever blocking the game indefinitely.
+const rotatePrompt=document.getElementById('rotatePrompt');
+let rotatePromptTimer=0;
+function viewportIsLandscape(){
+  const vv=window.visualViewport;
+  const vw=vv?vv.width:window.innerWidth;
+  const vh=vv?vv.height:window.innerHeight;
+  return vw>=vh;
+}
+function hideRotatePrompt(){
+  rotatePrompt.classList.remove('show');
+  if(rotatePromptTimer){clearTimeout(rotatePromptTimer);rotatePromptTimer=0;}
+}
+function brieflySuggestLandscape(){
+  if(!matchMedia('(pointer:coarse)').matches||viewportIsLandscape()){hideRotatePrompt();return;}
+  rotatePrompt.classList.add('show');
+  rotatePromptTimer=setTimeout(hideRotatePrompt,1800);
+}
+rotatePrompt.addEventListener('pointerdown',hideRotatePrompt);
+window.addEventListener('orientationchange',()=>setTimeout(()=>{resize();hideRotatePrompt();},80));
+window.addEventListener('resize',()=>{if(viewportIsLandscape())hideRotatePrompt();});
+setTimeout(brieflySuggestLandscape,120);
 // Stops iOS Safari's pull-to-refresh/rubber-band scrolling from fighting the game while playing.
 document.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
 // Defines the named game states used by the main loop.
