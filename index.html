@@ -81,19 +81,19 @@ canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelate
   #frame{width:min(100vw,177.778dvh);height:min(56.25vw,100dvh);border-radius:0;}
 }
 #touchControls{position:absolute;inset:0;z-index:8;pointer-events:none;}
-#movePad{position:absolute;left:calc(3.2vmin + env(safe-area-inset-left));bottom:calc(3.2vmin + env(safe-area-inset-bottom));width:22vmin;height:22vmin;min-width:76px;min-height:76px;max-width:118px;max-height:118px;border-radius:50%;pointer-events:auto;touch-action:none;background:rgba(18,10,28,.46);border:2px solid rgba(224,172,43,.62);box-shadow:inset 0 0 18px rgba(0,0,0,.72),0 0 10px rgba(224,172,43,.18);}
+#movePad{-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;position:absolute;left:calc(3.2vmin + env(safe-area-inset-left));bottom:calc(3.2vmin + env(safe-area-inset-bottom));width:22vmin;height:22vmin;min-width:76px;min-height:76px;max-width:118px;max-height:118px;border-radius:50%;pointer-events:auto;touch-action:none;background:rgba(18,10,28,.46);border:2px solid rgba(224,172,43,.62);box-shadow:inset 0 0 18px rgba(0,0,0,.72),0 0 10px rgba(224,172,43,.18);}
 #moveStick{position:absolute;left:50%;top:50%;width:42%;height:42%;transform:translate(-50%,-50%);border-radius:50%;background:linear-gradient(#4d2a70,#241238);border:2px solid var(--gold);box-shadow:0 0 9px rgba(224,172,43,.32);}
 #movePad::after{content:'SWIPE UP TO JUMP';position:absolute;left:50%;bottom:-16px;transform:translateX(-50%);white-space:nowrap;font-size:clamp(5px,1.2vmin,7px);color:rgba(233,220,195,.65);text-shadow:1px 1px #000;}
-#tAttack{position:absolute;right:calc(4vmin + env(safe-area-inset-right));bottom:calc(5vmin + env(safe-area-inset-bottom));width:14vmin;height:14vmin;min-width:52px;min-height:52px;max-width:76px;max-height:76px;pointer-events:auto;touch-action:none;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(#3d1f5c,#241238);border:2px solid var(--gold);color:var(--gold);font-size:clamp(17px,4vmin,25px);box-shadow:0 0 10px rgba(224,172,43,.3),inset 0 0 8px rgba(0,0,0,.6);opacity:.84;}
+#tAttack{position:absolute;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;right:calc(4vmin + env(safe-area-inset-right));bottom:calc(5vmin + env(safe-area-inset-bottom));width:14vmin;height:14vmin;min-width:52px;min-height:52px;max-width:76px;max-height:76px;pointer-events:auto;touch-action:none;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(#3d1f5c,#241238);border:2px solid var(--gold);color:var(--gold);font-size:clamp(17px,4vmin,25px);box-shadow:0 0 10px rgba(224,172,43,.3),inset 0 0 8px rgba(0,0,0,.6);opacity:.84;}
 #tAttack.held{background:linear-gradient(#4d2a70,#2f1747);color:#fff2c9;opacity:1;}
-#shieldSecret{position:absolute;inset:-12px;pointer-events:auto;touch-action:manipulation;}
-#weaponSecret{position:absolute;top:0;right:0;width:18%;height:22%;z-index:9;pointer-events:auto;touch-action:manipulation;}
+#shieldSecret{position:absolute;inset:-12px;pointer-events:auto;touch-action:none;-webkit-tap-highlight-color:transparent;}
+#weaponSecret{position:absolute;top:0;right:0;width:18%;height:22%;z-index:9;pointer-events:auto;touch-action:none;-webkit-tap-highlight-color:transparent;}
 #rotatePrompt{display:none;position:fixed;inset:0;z-index:9999;background:rgba(6,4,10,.94);color:var(--gold);align-items:center;justify-content:center;text-align:center;padding:30px;font-family:'Press Start 2P',monospace;font-size:clamp(12px,4vw,20px);line-height:1.8;pointer-events:auto;}
 #rotatePrompt.show{display:flex;}
 #rotatePrompt .phone{font-size:48px;display:block;margin-bottom:18px;animation:turnPhone 1.7s ease-in-out infinite;}
 @keyframes turnPhone{0%,20%{transform:rotate(0deg)}70%,100%{transform:rotate(90deg)}}
 
-#musicToggle{position:absolute;bottom:14px;right:14px;z-index:9;width:36px;height:36px;background:linear-gradient(#3d1f5c,#241238);border:2px solid var(--gold);color:var(--gold);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 10px rgba(224,172,43,.3),inset 0 0 8px rgba(0,0,0,.6);border-radius:3px;font-family:'Press Start 2P',monospace;touch-action:manipulation;}
+#musicToggle{position:absolute;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;bottom:14px;right:14px;z-index:9;width:36px;height:36px;background:linear-gradient(#3d1f5c,#241238);border:2px solid var(--gold);color:var(--gold);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 10px rgba(224,172,43,.3),inset 0 0 8px rgba(0,0,0,.6);border-radius:3px;font-family:'Press Start 2P',monospace;touch-action:none;}
 @media (pointer:coarse){
   #musicToggle{bottom:auto;top:calc(10px + env(safe-area-inset-top));right:calc(10px + env(safe-area-inset-right));}
 }
@@ -173,6 +173,18 @@ window.addEventListener('resize',()=>{if(viewportIsLandscape())hideRotatePrompt(
 setTimeout(brieflySuggestLandscape,120);
 // Stops iOS Safari's pull-to-refresh/rubber-band scrolling from fighting the game while playing.
 document.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
+// Completely suppress iOS Safari pinch/double-tap zoom inside the game.
+document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
+for(const type of ['gesturestart','gesturechange','gestureend']){
+  document.addEventListener(type,e=>e.preventDefault(),{passive:false});
+}
+let lastTouchStart=0;
+document.addEventListener('touchstart',e=>{
+  const now=Date.now();
+  if(now-lastTouchStart<420)e.preventDefault();
+  lastTouchStart=now;
+},{passive:false,capture:true});
+document.addEventListener('touchend',e=>e.preventDefault(),{passive:false,capture:true});
 // Defines the named game states used by the main loop.
 const STATE={TITLE:0,PULLING:1,PULLED:2,PLAY:3,BOSS:4,DEAD:5,WIN:6,BOSSDEATH:7,EPILOGUE:8};
 // Initializes global gameplay timers, score, stage, camera, and cutscene state.
@@ -1460,9 +1472,10 @@ const embeddedMusic=new Audio('data:audio/mpeg;base64,SUQzBAAAAAABAFRYWFgAAAASAA
 embeddedMusic.loop=true;
 embeddedMusic.preload='auto';
 embeddedMusic.volume=0.72;
-let musicOn=false;
+let musicOn=false,musicWanted=false,lastMusicToggle=0;
 // Starts playback after a direct user gesture, as required by modern browsers.
 async function startMusic(){
+  musicWanted=true;
   try{
     await embeddedMusic.play();
     musicOn=true;
@@ -1477,6 +1490,7 @@ async function startMusic(){
 }
 // Pauses without resetting, so toggling it back on resumes from the same position.
 function stopMusic(){
+  musicWanted=false;
   embeddedMusic.pause();
   musicOn=false;
   musicToggle.textContent='🔈';
@@ -1484,10 +1498,23 @@ function stopMusic(){
   musicToggle.title='Play music';
 }
 // Turns the embedded song on or off when the speaker button is clicked.
-musicToggle.addEventListener('click',()=>{if(musicOn)stopMusic();else startMusic();});
+function toggleMusicFromGesture(e){
+  if(e){e.preventDefault();e.stopPropagation();}
+  const now=performance.now();
+  if(now-lastMusicToggle<350)return;
+  lastMusicToggle=now;
+  if(musicWanted||musicOn)stopMusic();else startMusic();
+}
+musicToggle.addEventListener('pointerdown',toggleMusicFromGesture);
+musicToggle.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();});
 // Keeps the button accurate if playback is interrupted by the browser or operating system.
-embeddedMusic.addEventListener('pause',()=>{if(!embeddedMusic.ended){musicOn=false;musicToggle.textContent='🔈';}});
+embeddedMusic.addEventListener('pause',()=>{if(!embeddedMusic.ended){musicOn=false;musicToggle.textContent=musicWanted?'🔊':'🔈';}});
 embeddedMusic.addEventListener('play',()=>{musicOn=true;musicToggle.textContent='🔊';});
+// Safari may pause audio while rotating or entering fullscreen. Resume it when the page becomes active again.
+function resumeWantedMusic(){if(musicWanted&&embeddedMusic.paused)embeddedMusic.play().catch(()=>{});}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(resumeWantedMusic,120);});
+window.addEventListener('orientationchange',()=>setTimeout(resumeWantedMusic,450));
+window.addEventListener('pageshow',()=>setTimeout(resumeWantedMusic,120));
 
 // Initializes canvas size, title state, and starts the animation loop.
 resize();resetTitle();render();
