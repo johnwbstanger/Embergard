@@ -87,19 +87,18 @@ canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelate
 #tAttack{position:absolute;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;right:calc(4vmin + env(safe-area-inset-right));bottom:calc(5vmin + env(safe-area-inset-bottom));width:14vmin;height:14vmin;min-width:52px;min-height:52px;max-width:76px;max-height:76px;pointer-events:auto;touch-action:none;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(#3d1f5c,#241238);border:2px solid var(--gold);color:var(--gold);font-size:clamp(17px,4vmin,25px);box-shadow:0 0 10px rgba(224,172,43,.3),inset 0 0 8px rgba(0,0,0,.6);opacity:.84;}
 #tAttack.held{background:linear-gradient(#4d2a70,#2f1747);color:#fff2c9;opacity:1;}
 #shieldSecret{position:absolute;inset:-12px;pointer-events:auto;touch-action:none;-webkit-tap-highlight-color:transparent;}
-#weaponSecret{position:absolute;top:0;right:0;width:18%;height:22%;z-index:9;pointer-events:auto;touch-action:none;-webkit-tap-highlight-color:transparent;}
+#weaponSecret{position:absolute;top:52px;right:0;width:16%;height:18%;z-index:8;pointer-events:auto;touch-action:none;-webkit-tap-highlight-color:transparent;}
 #rotatePrompt{display:none;position:fixed;inset:0;z-index:9999;background:rgba(6,4,10,.94);color:var(--gold);align-items:center;justify-content:center;text-align:center;padding:30px;font-family:'Press Start 2P',monospace;font-size:clamp(12px,4vw,20px);line-height:1.8;pointer-events:auto;}
 #rotatePrompt.show{display:flex;}
 #rotatePrompt .phone{font-size:48px;display:block;margin-bottom:18px;animation:turnPhone 1.7s ease-in-out infinite;}
 @keyframes turnPhone{0%,20%{transform:rotate(0deg)}70%,100%{transform:rotate(90deg)}}
 
-#musicToggle{position:absolute;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;bottom:14px;right:14px;z-index:9;width:36px;height:36px;background:linear-gradient(#3d1f5c,#241238);border:2px solid var(--gold);color:var(--gold);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 10px rgba(224,172,43,.3),inset 0 0 8px rgba(0,0,0,.6);border-radius:3px;font-family:'Press Start 2P',monospace;touch-action:none;}
+#musicToggle{position:absolute;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;bottom:14px;right:14px;z-index:12;width:36px;height:36px;background:linear-gradient(#3d1f5c,#241238);border:2px solid var(--gold);color:var(--gold);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 10px rgba(224,172,43,.3),inset 0 0 8px rgba(0,0,0,.6);border-radius:3px;font-family:'Press Start 2P',monospace;touch-action:none;}
 @media (pointer:coarse){
   #musicToggle{bottom:auto;top:calc(10px + env(safe-area-inset-top));right:calc(10px + env(safe-area-inset-right));}
 }
 /* Styles the music toggle button. */
 #musicToggle:hover{color:#fff2c9;background:linear-gradient(#4d2a70,#2f1747);}
-<!-- Ends the CSS styling block. -->
 </style>
 <!-- Ends the metadata section. -->
 </head>
@@ -171,20 +170,13 @@ rotatePrompt.addEventListener('pointerdown',hideRotatePrompt);
 window.addEventListener('orientationchange',()=>setTimeout(()=>{resize();hideRotatePrompt();},80));
 window.addEventListener('resize',()=>{if(viewportIsLandscape())hideRotatePrompt();});
 setTimeout(brieflySuggestLandscape,120);
-// Stops iOS Safari's pull-to-refresh/rubber-band scrolling from fighting the game while playing.
-document.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
-// Completely suppress iOS Safari pinch/double-tap zoom inside the game.
-document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
+// Prevent browser scrolling and zoom only inside the game surface.
+// Do not cancel every touchend globally: that blocks iOS button activation.
 for(const type of ['gesturestart','gesturechange','gestureend']){
-  document.addEventListener(type,e=>e.preventDefault(),{passive:false});
+  frame.addEventListener(type,e=>e.preventDefault(),{passive:false});
 }
-let lastTouchStart=0;
-document.addEventListener('touchstart',e=>{
-  const now=Date.now();
-  if(now-lastTouchStart<420)e.preventDefault();
-  lastTouchStart=now;
-},{passive:false,capture:true});
-document.addEventListener('touchend',e=>e.preventDefault(),{passive:false,capture:true});
+frame.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
+frame.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
 // Defines the named game states used by the main loop.
 const STATE={TITLE:0,PULLING:1,PULLED:2,PLAY:3,BOSS:4,DEAD:5,WIN:6,BOSSDEATH:7,EPILOGUE:8};
 // Initializes global gameplay timers, score, stage, camera, and cutscene state.
@@ -321,28 +313,55 @@ function bindHoldButton(el,code){
 }
 // Wires a touch button to fire once per press, mirroring the Space/S attack key.
 function bindTapButton(el,fn){
-  el.addEventListener('pointerdown',e=>{e.preventDefault();el.classList.add('held');fn();});
-  el.addEventListener('pointerup',e=>{e.preventDefault();el.classList.remove('held');});
-  el.addEventListener('pointercancel',()=>el.classList.remove('held'));
-  el.addEventListener('pointerleave',()=>el.classList.remove('held'));
+  let activePointer=null;
+  el.addEventListener('pointerdown',e=>{
+    if(activePointer!==null)return;
+    e.preventDefault();e.stopPropagation();
+    activePointer=e.pointerId;
+    try{el.setPointerCapture(e.pointerId);}catch(err){}
+    el.classList.add('held');
+    fn();
+  });
+  const release=e=>{
+    if(e&&activePointer!==null&&e.pointerId!==activePointer)return;
+    activePointer=null;el.classList.remove('held');
+  };
+  el.addEventListener('pointerup',release);
+  el.addEventListener('pointercancel',release);
+  el.addEventListener('lostpointercapture',release);
 }
-// Compact analog-style movement pad. Horizontal drag controls movement; an upward swipe triggers one jump.
+// Compact analog-style movement pad. Horizontal drag controls movement;
+// an upward swipe creates a long-enough virtual key pulse for the game loop.
 const movePad=document.getElementById('movePad'),moveStick=document.getElementById('moveStick');
-let padPointer=null,padStartX=0,padStartY=0,padJumped=false;
-function releasePad(e){
-  if(padPointer!==null&&e.pointerId!==undefined&&e.pointerId!==padPointer)return;
-  padPointer=null;keys.ArrowLeft=false;keys.ArrowRight=false;moveStick.style.transform='translate(-50%,-50%)';
+let padPointer=null,padStartX=0,padStartY=0,padJumped=false,jumpReleaseTimer=0;
+function pulseMobileJump(){
+  keys.ArrowUp=true;
+  clearTimeout(jumpReleaseTimer);
+  jumpReleaseTimer=setTimeout(()=>{keys.ArrowUp=false;},110);
 }
-movePad.addEventListener('pointerdown',e=>{e.preventDefault();padPointer=e.pointerId;padStartX=e.clientX;padStartY=e.clientY;padJumped=false;try{movePad.setPointerCapture(e.pointerId);}catch(err){}});
+function releasePad(e){
+  if(padPointer!==null&&e&&e.pointerId!==undefined&&e.pointerId!==padPointer)return;
+  padPointer=null;keys.ArrowLeft=false;keys.ArrowRight=false;
+  moveStick.style.transform='translate(-50%,-50%)';
+}
+movePad.addEventListener('pointerdown',e=>{
+  e.preventDefault();e.stopPropagation();
+  padPointer=e.pointerId;padStartX=e.clientX;padStartY=e.clientY;padJumped=false;
+  try{movePad.setPointerCapture(e.pointerId);}catch(err){}
+});
 movePad.addEventListener('pointermove',e=>{
   if(e.pointerId!==padPointer)return;e.preventDefault();
   const dx=e.clientX-padStartX,dy=e.clientY-padStartY,limit=movePad.clientWidth*.28;
   const tx=Math.max(-limit,Math.min(limit,dx)),ty=Math.max(-limit,Math.min(limit,dy));
   moveStick.style.transform=`translate(calc(-50% + ${tx}px),calc(-50% + ${ty}px))`;
   keys.ArrowLeft=dx<-10;keys.ArrowRight=dx>10;
-  if(dy<-26&&!padJumped){padJumped=true;keys.ArrowUp=true;requestAnimationFrame(()=>{keys.ArrowUp=false;});}
+  if(dy<-24&&!padJumped){padJumped=true;pulseMobileJump();}
 });
-movePad.addEventListener('pointerup',releasePad);movePad.addEventListener('pointercancel',releasePad);
+movePad.addEventListener('pointerup',releasePad);
+movePad.addEventListener('pointercancel',releasePad);
+movePad.addEventListener('lostpointercapture',releasePad);
+window.addEventListener('blur',()=>releasePad(null));
+document.addEventListener('visibilitychange',()=>{if(document.hidden)releasePad(null);});
 bindTapButton(document.getElementById('tAttack'),triggerAction);
 
 function toggleShield(){if(state===STATE.PLAY||state===STATE.BOSS){godMode=!godMode;player.inv=godMode?999999:0;showBanner(godMode?'DEVELOPER AURA ENABLED':'DEVELOPER AURA DISABLED');}}
@@ -360,7 +379,12 @@ async function enterLandscape(){
   try{if(document.documentElement.requestFullscreen&&!document.fullscreenElement)await document.documentElement.requestFullscreen({navigationUI:'hide'});}catch(err){}
   try{if(screen.orientation&&screen.orientation.lock)await screen.orientation.lock('landscape');}catch(err){}
 }
-startBtn.addEventListener('pointerdown',enterLandscape);
+startBtn.addEventListener('pointerdown',e=>{
+  e.preventDefault();e.stopPropagation();
+  enterLandscape();
+  if(typeof startBtn.onclick==='function')startBtn.onclick(e);
+});
+startBtn.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();});
 // Connects the title button to the sword-pull sequence.
 startBtn.onclick=startPull;
 // Increases the sword-pull meter and starts the game when full.
